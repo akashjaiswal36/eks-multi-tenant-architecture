@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: team-a-app
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/akashjaiswal36/eks-multi-tenant-architecture.git
+    targetRevision: HEAD
+    path: Namespace-team-a
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: team-a
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
