@@ -1,0 +1,12 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: team-a-binding
+  namespace: team-a
+subjects:
+- kind: Group
+  name: team-a-group
+roleRef:
+  kind: Role
+  name: team-a-role
+  apiGroup: rbac.authorization.k8s.io

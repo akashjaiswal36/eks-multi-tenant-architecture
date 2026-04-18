@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: team-b-allow-internal
+  namespace: team-b
+spec:
+  podSelector: {}
+
+  ingress:
+  - from:
+    - podSelector: {}   # only team-b pods
+
+  egress:
+  - to:
+    - podSelector: {}   # only team-b pods
+
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
