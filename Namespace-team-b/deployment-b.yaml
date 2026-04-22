@@ -21,10 +21,10 @@ spec:
         image: nginx
         resources:                 # ✅ ADD THIS
           requests:
-            cpu: "2m"
+            cpu: "200m"
             memory: "128Mi"
           limits:
-            cpu: "3m"
+            cpu: "300m"
             memory: "256Mi"
         volumeMounts:
         - name: html-volume
