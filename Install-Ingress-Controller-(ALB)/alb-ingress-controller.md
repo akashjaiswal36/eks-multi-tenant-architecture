@@ -8,16 +8,17 @@ aws iam create-policy \
     --policy-name AWSLoadBalancerControllerIAMPolicy \
     --policy-document file://iam_policy.json
 
+
 a.Replace the values for cluster name, region code, and account ID.
 
 eksctl create iamserviceaccount \
-    --cluster=eks-demo-cluster \
-    --namespace=kube-system \
-    --name=aws-load-balancer-controller \
-    --attach-policy-arn=arn:aws:iam::512741504567:policy/AWSLoadBalancerControllerIAMPolicy \
-    --override-existing-serviceaccounts \
-    --region ap-south-1 \
-    --approve
+  --cluster=eks-demo-cluster \
+  --namespace=kube-system \
+  --name=aws-load-balancer-controller \
+  --attach-policy-arn=arn:aws:iam::512741504567:policy/AWSLoadBalancerControllerIAMPolicy \
+  --override-existing-serviceaccounts \
+  --region ap-south-1 \
+  --approve
 
 
 Step 2: Install AWS Load Balancer Controller

@@ -6,7 +6,7 @@ kubectl create namespace argocd
 
 helm install argocd argo/argo-cd \
   --namespace argocd \
-  --set server.service.type=LoadBalancer or ClusterIP
+  --set server.service.type=ClusterIP            LoadBalancer or ClusterIP
 
   kubectl get svc argocd-server -n argocd
 

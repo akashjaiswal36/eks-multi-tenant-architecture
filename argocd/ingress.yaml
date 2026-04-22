@@ -4,10 +4,19 @@ metadata:
   name: argocd
   namespace: argocd
   annotations:
-    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/group.name: shared-alb
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+    alb.ingress.kubernetes.io/backend-protocol: HTTPS
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:ap-south-1:178502900821:certificate/42af6339-7607-4d56-8752-60ca8e60942d"
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
 spec:
+  ingressClassName: alb
   rules:
-  - host: argocd.yourdomain.com
+  - host: argocd.cloudai.click
     http:
       paths:
       - path: /
@@ -16,4 +25,4 @@ spec:
           service:
             name: argocd-server
             port:
-              number: 80
+              number: 443
