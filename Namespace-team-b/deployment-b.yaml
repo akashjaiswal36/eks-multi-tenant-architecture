@@ -4,7 +4,7 @@ metadata:
   name: app-b
   namespace: team-b
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: app-b
