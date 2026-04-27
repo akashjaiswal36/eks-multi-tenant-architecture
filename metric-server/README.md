@@ -3,7 +3,8 @@ helm repo update
 
 helm install metrics-server metrics-server/metrics-server \
   -n kube-system \
-  --set args={--kubelet-insecure-tls,--kubelet-preferred-address-types=InternalIP}
+  --set args[0]=--kubelet-insecure-tls \
+  --set args[1]=--kubelet-preferred-address-types=InternalIP
 
 Flag	                                           Purpose
 --kubelet-insecure-tls	                      -->>      Fix TLS issue in EKS

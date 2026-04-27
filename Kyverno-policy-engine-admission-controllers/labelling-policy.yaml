@@ -1,0 +1,20 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: labeling-policy
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: require-labels
+      match:
+        resources:
+          kinds:
+            - Pod
+      validate:
+        message: "team and env labels are required"
+        pattern:
+          metadata:
+            labels:
+              team: "?*"
+              env: "?*"

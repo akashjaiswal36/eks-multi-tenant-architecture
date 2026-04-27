@@ -1,0 +1,18 @@
+apiVersion: kyverno.io/v1
+kind: Policy
+metadata:
+  name: team-b-policy
+  namespace: team-b
+spec:
+  rules:
+    - name: require-label
+      match:
+        resources:
+          kinds:
+            - Pod
+      validate:
+        message: "team label required"
+        pattern:
+          metadata:
+            labels:
+              team: "team-b"

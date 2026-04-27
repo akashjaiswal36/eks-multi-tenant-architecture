@@ -1,0 +1,178 @@
+
+
+aws sso login --profile your-profile
+
+AWS_PROFILE=your-profile
+
+$env:AWS_PROFILE="AdministratorAccess-512741504567"
+
+
+aws configure list-profiles
+
+powershell
+echo $env:USERPROFILE
+Git Bash
+echo $HOME
+
+Fix it in Git Bash:
+export HOME=/c/Users/akash
+👉 Add this permanently in:
+~/.bashrc
+
+
+===========================
+✅ 2️⃣ Standardize setup like companies (best practice)
+🧱 Create clean SSO profiles
+
+Run once: aws configure sso
+
+Create profiles like:
+dev-admin
+dev-readonly
+prod-admin
+
+📁 Your config file should look like:
+[profile dev-admin]
+sso_start_url = https://d-9f6750bf69.awsapps.com/start
+sso_region = ap-south-1
+sso_account_id = 512741504567
+sso_role_name = AdministratorAccess
+region = ap-south-1
+
+
+🔐 Login (daily)
+aws sso login --profile dev-admin
+
+⚙️ Set default profile (optional but useful)
+PowerShell:
+$env:AWS_PROFILE="dev-admin"
+
+Git Bash:
+export AWS_PROFILE=dev-admin
+
+aws sts get-caller-identity
+
+👉 Should show:
+assumed-role/AWSReservedSSO_AdministratorAccess...
+Uses 👉 AWS Security Token Service
+
+-----------------------------------------------------------
+
+🚀 Terraform integration (important)
+Option A (recommended)
+
+export AWS_PROFILE=dev-admin
+terraform plan
+
+Option B:
+
+provider "aws" {
+  profile = "dev-admin"
+  region  = "ap-south-1"
+}
+
+🔥 Real MNC workflow (this is gold)
+
+Every engineer does:
+
+aws sso login --profile dev-admin
+export AWS_PROFILE=dev-admin
+terraform apply
+
+No access keys ❌
+Only SSO ✅ via
+👉 AWS IAM Identity Center
+
+=================================
+
+🔥 Best practice (what MNCs do)
+
+👉 Either:
+
+Option A:
+export AWS_PROFILE=dev-admin
+aws eks update-kubeconfig --name dev-cluster
+
+Option B:
+aws eks update-kubeconfig --name dev-cluster --profile dev-admin
+
+
+===================================================================
+
+🟢 Step 1: Create Access Entry
+aws eks create-access-entry \
+  --cluster-name eks-demo-cluster \
+  --principal-arn arn:aws:iam::512741504567:role/aws-reserved/sso.amazonaws.com/ap-south-1/AWSReservedSSO_AdministratorAccess_bc3d51eedf42b968
+
+
+🟢 Step 2: Attach Admin Policy
+aws eks associate-access-policy \
+  --cluster-name eks-demo-cluster \
+  --principal-arn arn:aws:iam::512741504567:role/aws-reserved/sso.amazonaws.com/ap-south-1/AWSReservedSSO_AdministratorAccess_bc3d51eedf42b968 \
+  --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy \
+  --access-scope type=cluster
+
+🟢 Step 3: Refresh login
+aws sso login
+
+🟢 Step 4: Test
+kubectl get nodes
+----------------------------------------------
+EXAMPLE:
+
+akash@akki-pc MINGW64 ~
+$ aws eks create-access-entry \
+  --cluster-name eks-demo-cluster \
+  --principal-arn arn:aws:iam::512741504567:role/aws-reserved/sso.amazonaws.com/ap-south-1/AWSReservedSSO_AdministratorAccess_bc3d51eedf42b968
+{
+    "accessEntry": {
+        "clusterName": "eks-demo-cluster",
+        "principalArn": "arn:aws:iam::512741504567:role/aws-reserved/sso.amazonaws.com/ap-south-1/AWSReservedSSO_AdministratorAccess_bc3d51eedf42b968",
+        "kubernetesGroups": [],
+        "accessEntryArn": "arn:aws:eks:ap-south-1:512741504567:access-entry/eks-demo-cluster/role/512741504567/AWSReservedSSO_AdministratorAccess_bc3d51eedf42b968/eacee36c-7900-5223-4fdf-eacb79cfc9f0",
+        "createdAt": "2026-04-26T04:23:19.802000+05:30",
+        "modifiedAt": "2026-04-26T04:23:19.802000+05:30",
+        "tags": {},
+        "username": "arn:aws:sts::512741504567:assumed-role/AWSReservedSSO_AdministratorAccess_bc3d51eedf42b968/{{SessionName}}",
+        "type": "STANDARD"
+    }
+}
+
+
+akash@akki-pc MINGW64 ~
+$ aws eks associate-access-policy \
+  --cluster-name eks-demo-cluster \
+  --principal-arn arn:aws:iam::512741504567:role/aws-reserved/sso.amazonaws.com/ap-south-1/AWSReservedSSO_AdministratorAccess_bc3d51eedf42b968 \
+  --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy \
+  --access-scope type=cluster
+{
+    "clusterName": "eks-demo-cluster",
+    "principalArn": "arn:aws:iam::512741504567:role/aws-reserved/sso.amazonaws.com/ap-south-1/AWSReservedSSO_AdministratorAccess_bc3d51eedf42b968",
+    "associatedAccessPolicy": {
+        "policyArn": "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy",
+        "accessScope": {
+            "type": "cluster",
+            "namespaces": []
+        },
+        "associatedAt": "2026-04-26T04:23:55.972000+05:30",
+        "modifiedAt": "2026-04-26T04:23:55.972000+05:30"
+    }
+}
+
+
+akash@akki-pc MINGW64 ~
+$ kubectl get nodes
+NAME                                       STATUS   ROLES    AGE   VERSION
+ip-10-0-1-85.ap-south-1.compute.internal   Ready    <none>   67m   v1.33.10-eks-bbe087e
+ip-10-0-2-70.ap-south-1.compute.internal   Ready    <none>   67m   v1.33.10-eks-bbe087e
+
+akash@akki-pc MINGW64 ~
+$ aws sts get-caller-identity
+{
+    "UserId": "AROAXOYOGOY36ATXACYAI:ajs3ra8",
+    "Account": "512741504567",
+    "Arn": "arn:aws:sts::512741504567:assumed-role/AWSReservedSSO_AdministratorAccess_bc3d51eedf42b968/ajs3ra8"
+}
+
+
+akash@akki-pc MINGW64 ~

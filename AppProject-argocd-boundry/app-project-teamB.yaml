@@ -1,0 +1,12 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: team-b-project
+  namespace: argocd
+spec:
+  destinations:
+    - namespace: team-b
+      server: https://kubernetes.default.svc
+  sourceRepos:
+    - https://github.com/akashjaiswal36/eks-multi-tenant-architecture.git
+  clusterResourceWhitelist: []

@@ -1,0 +1,19 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: image-policy
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: restrict-images
+      match:
+        resources:
+          kinds:
+            - Pod
+      validate:
+        message: "Only approved images are allowed"
+        pattern:
+          spec:
+            containers:
+              - image: "nginx* | 512741504567.dkr.ecr.ap-south-1.amazonaws.com/*"
