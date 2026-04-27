@@ -1,31 +1,51 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: webapp
+  name: app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: webapp
+      app: myapp
   template:
     metadata:
       labels:
-        app: webapp
+        app: myapp
     spec:
-      serviceAccountName: secrets-sa
       containers:
-        - name: webapp
-          image: 512741504567.dkr.ecr.ap-south-1.amazonaws.com/eks-demo:latest
-          ports:
-            - containerPort: 5000
-          volumeMounts:
-            - name: secrets-store
-              mountPath: "/mnt/secrets-store"
+        - name: app
+          image: nginx
+          env:
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: username
+
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: password
+
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: host
+
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: dbname
+
+          volumeMounts:   # ✅ Correct placement
+            - name: secret-volume
+              mountPath: "/etc/secrets"
               readOnly: true
+
       volumes:
-        - name: secrets-store
-          csi:
-            driver: secrets-store.csi.k8s.io
-            readOnly: true
-            volumeAttributes:
-              secretProviderClass: "aws-secret"
+        - name: secret-volume
+          secret:
+            secretName: app-secret
